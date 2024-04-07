@@ -3,7 +3,8 @@
     <el-table
     :data="tableData"
     style="width: 100%"
-    height="auto">
+    height="auto"
+    row-key="itemid">
     <el-table-column
       fixed
       prop="itemid"
@@ -77,23 +78,82 @@
       prop="/"
       label="商品操作"
       width="120">
-      <el-button type="primary" :icon="Edit" circle  @click="dialogVisible = true"/>
-      <el-button type="danger" :icon="Delete" circle @click="dialogVisible = true"/>
+      <template v-slot:default="scope">
+        <!-- 使用插槽获取该行数据 -->
+        <el-button type="primary" :icon="Edit" circle  @click="editRow(scope.row)"/>
+        <el-button type="danger" :icon="Delete" circle @click="deleteRow(scope.row)"  />
+      </template>
     </el-table-column>
   </el-table>
 
+  <!-- 点击修改商品信息后弹出的表单对话框 -->
   <el-dialog
     v-model="dialogVisible"
     title="修改商品信息"
     width="500"
     :before-close="handleClose"
   >
-    <ModifyGood />
+  <el-form
+    style="max-width: 600px"
+    ref="formData"
+    :model="selectData"
+    label-width="auto"
+    class="demo-ruleForm"
+    status-icon
+  >
+  <!-- 踩坑：在同时使用ref和:model时二者的属性值不能同名否则会会无法输入 -->
+    <el-form-item label="商品名称" prop="itemid">
+      <el-input v-model="selectData.itemid" />
+    </el-form-item>
+    <el-form-item label="商品大类" prop="categoryid">
+      <el-select v-model="selectData.categoryid" placeholder="商品大类">
+        <el-option label="BIRDS" value="Birds" />
+        <el-option label="CATS" value="Cats" />
+        <el-option label="DOGS" value="Dogs" />
+        <el-option label="FISH" value="Fish" />
+        <el-option label="REPTILES" value="Reptiles" />
+      </el-select>
+    </el-form-item>
+    <el-form-item label="商品类别" prop="productid">
+      <el-input v-model="selectData.productid" />
+    </el-form-item>
+    <el-form-item label="商品图片" prop="img">
+      <el-input v-model="selectData.img" />
+    </el-form-item>
+    <el-form-item label="商品售价" prop="listprice">
+      <el-input v-model="selectData.listprice" />
+    </el-form-item>
+    <el-form-item label="商品进价" prop="unitcost">
+      <el-input v-model="selectData.unitcost" />
+    </el-form-item>
+    <el-form-item label="商品供应商" prop="supplier">
+      <el-input v-model="selectData.supplier" />
+    </el-form-item>
+    <el-form-item label="商品状态" prop="status">
+      <el-radio-group v-model="selectData.status">
+        <el-radio value="P">P</el-radio>
+        <el-radio value="S">S</el-radio>
+      </el-radio-group>
+    </el-form-item>
+    <el-form-item label="商品数量" prop="quantity">
+      <el-select-v2
+        v-model="selectData.quantity"
+        placeholder="商品数量"
+        :options="options"
+      />
+    </el-form-item>
+    <el-form-item label="商品描述" prop="attr1">
+      <el-input v-model="selectData.attr1" />
+    </el-form-item>
+    <el-form-item label="类别描述" prop="descn">
+      <el-input v-model="selectData.descn" type="textarea" />
+    </el-form-item>
+  </el-form>
     <template #footer>
       <div class="dialog-footer">
-        <el-button @click="dialogVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="dialogVisible = false">
-          Confirm
+        <el-button @click="resetForm()">取消</el-button>
+        <el-button type="primary" @click="submitModifyForm()">
+          提交
         </el-button>
       </div>
     </template>
@@ -101,43 +161,38 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { reactive, ref, computed } from 'vue'
+import { ElMessageBox, ElMessage } from 'element-plus'
+import axios from 'axios'
+import { onMounted, onBeforeMount} from 'vue'
+import { useGoodStore } from '../store/goodstore'
+import { storeToRefs } from 'pinia'
 import {
   Delete,
   Edit,
 } from '@element-plus/icons-vue'
-import AddGood from './AddGood.vue';
-import ModifyGood from './ModifyGood.vue';
-  const tableData = [
-      {
-        itemid:'EST-1',
-        productid:'FI-SW-01',
-        categoryid:'FISH',
-        img:'https://fuss10.elemecdn.com/a/3f/3302e58f9a181d2509f3dc0fa68b0jpeg.jpeg',
-        previewImgList:['https://fuss10.elemecdn.com/a/3f/3302e58f9a181d2509f3dc0fa68b0jpeg.jpeg'],
-        listprice:'16.50',
-        unitcost:'10.00',
-        supplier:'11',
-        status:'P',
-        attr1:'Large',
-        quantity:'11',
-        descn:'Great companion for up to 75 years'
-      }
-  ]
+const useGoodsList = useGoodStore()
+const { currentGoodsList } = storeToRefs(useGoodsList)
 
-  const selectData = {
-        categoryid:'FISH',
-        img:'https://fuss10.elemecdn.com/a/3f/3302e58f9a181d2509f3dc0fa68b0jpeg.jpeg',
-        previewImgList:['https://fuss10.elemecdn.com/a/3f/3302e58f9a181d2509f3dc0fa68b0jpeg.jpeg'],
-        listprice:'16.50',
-        unitcost:'10.00',
-        supplier:'11',
-        status:'P',
-        attr1:'Large',
-        quantity:'11',
-        descn:'Great companion for up to 75 years'
-  }
-
+  const tableData = computed(()=> useGoodsList.currentGoodsList)
+  //弹出修改信息框中的数据
+  let selectData = reactive({
+        itemid:'',
+        productid:'',
+        categoryid:'',
+        img:'',
+        previewImgList:[''],
+        listprice:'',
+        unitcost:'',
+        supplier:'',
+        status:'',
+        attr1:'',
+        quantity:'',
+        descn:''
+  })
+  //定义发送请求的路径
+  const serverURLUpdate = 'http://192.168.79.82:8080/updateitem'
+  const serverURLDelete = 'http://192.168.79.82:8080/removeitem'
 
   const show = function(){
     console.log("图片加载成功");
@@ -148,6 +203,119 @@ import ModifyGood from './ModifyGood.vue';
   }
 
   const dialogVisible = ref(false)
+  //点击修改按钮后获取当前行的数据并弹出对话框
+  const editRow = (row) =>{
+    //不要直接赋值避免丢失响应式
+    selectData.value = {...row}
+    dialogVisible.value = true
+  }
+  //设置下拉框中数据范围
+  const options = Array.from({ length: 100 }).map((_, idx) => ({
+  value: `${idx + 1}`,
+  label: `${idx + 1}`,
+  }))
+  //处理关闭对话框
+  function handleClose(done) {  
+  ElMessageBox.confirm('是否确认退出?表单数据未保存')  
+    .then(function() {  
+      done();  
+    })  
+    .catch(function() {  
+      // catch error  
+    });  
+  }
+  //在对话框中点击提交后处理提交表单
+  const submitModifyForm = async function (){
+      axios({
+        method:'post',
+        url:serverURLUpdate,
+        headers:{
+          'Authorization': `${localStorage.getItem("token")}`, // 使用Bearer token的方式
+          'Content-Type': 'application/json'
+        },
+        data:JSON.stringify(selectData)
+      }).then((result) => {
+        console.log(result);
+        //修改商品信息成功
+        if(result.data.status === 0){
+         //利用ElementUI信息提示组件返回登录信息
+         ElMessage({
+                message: result.data.message,
+                type: "success",
+              });
+        }else{
+          //修改商品信息失败
+          ElMessage.error(result.data.message);
+      }
+    }).catch(function(error){
+    console.log(error);
+    })
+    dialogVisible.value = false
+  }
+//在对话框中点击取消后处理表单
+function resetForm(){
+  if (selectData.value) {  
+    formData.value.resetFields(); // 使用表单的 resetFields 方法清空表单  
+  } 
+  dialogVisible.value = false
+}
+//删除指定行
+async function deleteRow(row) {
+  selectData.value = {...row}
+  ElMessageBox.confirm(
+    '即将删除指定数据,是否确认删除?',
+    'Warning',
+    {
+      confirmButtonText: '删除',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }
+  )
+    .then(() => {
+      axios({
+        method:'post',
+        url:serverURLDelete,
+        headers:{
+          'Authorization': `${localStorage.getItem("token")}`, // 使用Bearer token的方式
+          'Content-Type': 'application/json'
+        },
+        data:JSON.stringify(selectData.itemid)
+      }).then((result) => {
+        console.log(result);
+        //删除商品信息成功
+        if(result.data.status === 0){
+         //利用ElementUI信息提示组件返回登录信息
+         ElMessage({
+                message: result.data.message,
+                type: "success",
+              });
+        }else{
+          //删除商品信息失败
+          ElMessage.error(result.data.message);
+      }
+    }).catch(function(error){
+    console.log(error);
+    })
+    })
+    .catch(() => {
+      ElMessage({
+        type: 'info',
+        message: 'Delete canceled',
+      })
+    })
+
+}
+
+onMounted(()=>{
+  console.log("onMounted");
+  useGoodsList.getGoodsList()
+  tableData.value = currentGoodsList.value
+})
+
+onBeforeMount(()=>{
+  useGoodsList.getGoodsList()
+  tableData.value = currentGoodsList.value
+})
 </script>
 
 <style>

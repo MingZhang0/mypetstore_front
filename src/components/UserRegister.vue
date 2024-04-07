@@ -2,38 +2,84 @@
 	<div class="login-wrap">
 		<el-form class="login-container">
 			<h1 class="title">用户注册</h1>
-			<el-form-item label="">
-				<el-input type="text" v-model="username" placeholder="登录账号" autocomplete="off"></el-input>
+			<el-form-item label="用户账号">
+				<el-input type="text" v-model="newUser.username" placeholder="登录账号" autocomplete="off"></el-input>
 			</el-form-item>
-			<el-form-item label="">
-				<el-input type="password" v-model="password" placeholder="登录密码" autocomplete="off"></el-input>
+			<el-form-item label="用户密码">
+				<el-input type="password" v-model="newUser.password" placeholder="登录密码" autocomplete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="用户邮箱">
+				<el-input type="text" v-model="newUser.email" placeholder="用户邮箱" autocomplete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="真实姓名">
+				<el-input type="text" v-model="newUser.real_name" placeholder="真实姓名" autocomplete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="电话号码">
+				<el-input type="text" v-model="newUser.phone" placeholder="电话号码" autocomplete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="用户地址">
+				<el-input type="text" v-model="newUser.address" placeholder="用户地址" autocomplete="off"></el-input>
 			</el-form-item>
 			<el-form-item>
 				<el-button type="primary" style="width:100%;" @click="doSubmit()">提交</el-button>
 			</el-form-item>
 			<el-row style="text-align: center;margin-top:-10px">
 				<el-link type="primary">忘记密码</el-link>
+				<span>|</span>
 				<el-link type="primary" @click="gotoLogin()">用户登录</el-link>
 			</el-row>
 		</el-form>
 	</div>
 </template>
  
-<script>
-export default {
-  name: 'UserRegister',
-  data () {
-    return {
-     username:'',
-     password:''
-    }
-  }
-  ,methods:{
-  	  gotoLogin(){
-  		this.$router.push('/userlogin');
-  	  }
-  }
+<script setup>
+import { reactive } from "vue";
+import { useRouter } from 'vue-router';
+import axios from 'axios'
+import { ElMessageBox, ElMessage } from "element-plus";
+const newUser = reactive({
+	username:'',
+	password:'',
+	email:'',
+	real_name:'',
+	phone:'',
+	address:''
+})
+
+
+const serverURL = 'http://192.168.79.82:8080/newuser'
+function doSubmit() {
+	axios({
+        method:'post',
+        url:serverURL,
+        headers:{
+          'Content-Type': 'application/json'
+        },
+        data:JSON.stringify(newUser)
+      }).then((result) => {
+        console.log(result);
+        //注册成功
+        if(result.data.status === 0){
+         //利用ElementUI信息提示组件返回登录信息
+				 ElMessage({
+                message: result.data.message,
+                type: "success",
+              });
+        }else{
+          //注册失败
+          ElMessage.error(result.data.message);
+      }
+    }).catch(function(error){
+    console.log(error);
+    })
 }
+
+const router = useRouter();
+function gotoLogin(){
+  router.push('/userlogin');  
+}
+  
+
 </script>
  
 <style scoped>

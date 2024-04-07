@@ -66,6 +66,8 @@
 
 <script setup>
 import { reactive, ref } from "vue"
+import axios from 'axios'
+import { ElMessageBox, ElMessage } from 'element-plus'
 const formData = ref(null)
 const ruleForm = reactive({
   itemid:'',
@@ -159,7 +161,7 @@ const options = Array.from({ length: 100 }).map((_, idx) => ({
   label: `${idx + 1}`,
 }))
 
-const serverURL = 'http://localhost:8099/newitem'
+const serverURL = 'http://192.168.79.82:8080/newitem'
 const token = localStorage.getItem("token")
 // 发送表单数据
 const submitForm = async function(){
@@ -167,22 +169,22 @@ const submitForm = async function(){
    method:'post',
    url: serverURL,
    headers:{
-    'Authorization': `Bearer ${token}`, // 使用Bearer token的方式
+    'Authorization': `${localStorage.getItem("token")}`, // 使用Bearer token的方式
     'Content-Type': 'application/json'  
    },
-   data:JSON.stringify(this.ruleForm)
+   data:JSON.stringify(ruleForm)
   }).then((result) => {
     console.log(result);
     //新增商品成功
     if(result.data.status === 0){
       //利用ElementUI信息提示组件返回登录信息
-      this.$message({
+      ElMessage({
                 message: result.data.message,
                 type: "success",
               });
     }else{
       //新增商品失败
-      this.$message.error(result.data.message);
+      ElMessage.error(result.data.message);
     }
   }).catch(function(error){
     console.log(error);

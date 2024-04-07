@@ -2,7 +2,7 @@
   <div class="common-layout">
     <el-container>
       <el-header>
-        <TopBanner />
+        <TopBanner userinfo="currentUserInfo.username"/>
       </el-header>
 
       <el-container>
@@ -28,18 +28,18 @@
                   <el-menu-item-group title="Group One">
                     <el-menu-item index="1-userManage">
                       <!-- 在页面中写router-link的to路径时需要加上父路径 -->
-                      <router-link to="/mainPage/userManage" @click="getUserList()">
+                      <router-link to="/mainPage/userManage">
                         个人信息
                       </router-link>
                     </el-menu-item>
                   </el-menu-item-group>
-                  <!-- <el-menu-item-group title="Group Two">
-                    <el-menu-item index="addUser">
-                      <router-link to="/mainPage/addUser">
-                        新增用户
+                  <el-menu-item-group title="Group Two">
+                    <el-menu-item index="addUser" disabled="currentUserInfo.admin">
+                      <router-link to="/mainPage/userList">
+                        用户列表
                       </router-link>
                     </el-menu-item>
-                  </el-menu-item-group> -->
+                  </el-menu-item-group>
                 </el-sub-menu>
                 <!-- 商品 -->
                 <el-sub-menu index="2">
@@ -106,28 +106,21 @@ import {
   Avatar
 } from '@element-plus/icons-vue'
 import { onMounted } from 'vue'
+import { useUserStore } from '../store/userstore';
+import { storeToRefs } from 'pinia';
+const userStore = useUserStore()
 //  用户信息
-const userInfo = {
+// const userInfo = {
+//   username:'',
+//   password:'',
+//   email:'',
+//   real_name:'',
+//   phone:'',
+//   address:'',
+//   status:'',
+// }
+const { currentUserInfo } = storeToRefs(userStore)
 
-}
-// 生命周期钩子 onMounted 在组件挂载后执行  
-onMounted(() => {
-  getUserInfo()
-})  
-// 获取用户信息方法定义  
-function getUserInfo() {  
-  // 设置请求服务器的地址  
-  const serverURL = 'http://localhost:8099/users'  
-  axios.get(serverURL)  
-    .then((result) => {  
-      console.log(result)  
-      // 假设服务器返回的是一个用户数组，我们可以将其赋值给userList  
-      userList.value = result.data  
-    })  
-    .catch((error) => {  
-      console.error('Error fetching user list:', error)  
-    })  
-}  
 </script>
 
 <style>
@@ -138,5 +131,8 @@ function getUserInfo() {
 a {
   text-decoration: none;
   color: black;
+}
+el-container {
+  height:auto
 }
 </style>

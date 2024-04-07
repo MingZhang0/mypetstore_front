@@ -5,7 +5,7 @@
       <el-form-item label="">
         <el-input
           type="text"
-          v-model="username"
+          v-model="user.username"
           placeholder="登录账号"
           autocomplete="off"
         ></el-input>
@@ -13,7 +13,7 @@
       <el-form-item label="">
         <el-input
           type="password"
-          v-model="password"
+          v-model="user.password"
           placeholder="登录密码"
           autocomplete="off"
         ></el-input>
@@ -25,34 +25,39 @@
       </el-form-item>
       <el-row style="text-align: center; margin-top: -10px">
         <el-link type="primary">忘记密码</el-link>
+        <span>|</span>
         <el-link type="primary" @click="gotoRegister()">用户注册</el-link>
       </el-row>
     </el-form>
   </div>
 </template>
  
-<script>
+<script setup>
+import { useUserStore } from "../store/userstore";
+import { storeToRefs } from "pinia";
 import router from "../router";
 import axios from 'axios'
-export default {
-  name: "UserLogin",
-  data() {
-    return {
-      username: "",
-      password: "",
-    };
-  },
-  methods: {
-    gotoRegister() {
-      this.$router.push("/userregister");
-    },
-    doSubmit() {
+import { reactive } from "vue";
+import { ElMessage } from 'element-plus';
+  const useUser = useUserStore()
+  const { currentUserInfo } = storeToRefs(useUser)
+
+  const user = reactive({
+    username:'',
+    password:''
+  })
+
+  function  gotoRegister() {
+      router.push("/userregister");
+  }
+
+  function  doSubmit() {
       //服务器对应地址
-      var serverURL = "http://localhost:8099/login";
+      var serverURL = "http://192.168.79.82:8080/user";
       //要携带的数据
       var params = {
-        username : this.username,
-        password : this.password
+        username : user.username,
+        password : user.password
       }
       /* post请求方式 */
       axios({
@@ -67,25 +72,26 @@ export default {
             //判断是否登录成功
             if (r.data.status === 0) {
               //利用ElementUI信息提示组件返回登录信息
-              this.$message({
+              ElMessage({
                 message: r.data.message,
                 type: "success",
               });
+              //返回成功请求后设置用户数据
+              useUser.setUserInfo(r.data.data)
               //登陆成功，返回指定界面
-              this.$router.push("/mainPage");
+              router.push("/mainPage");
+            
               //将token存储到本地
               localStorage.setItem("token",r.data.token)
             }else {
               //弹出登录失败信息
-              this.$message.error(r.data.message);
+              ElMessage.error(r.data.message);
             }
           })
           .catch(function (error) {
             console.log(error);
           });
-    },
-  },
-};
+    }
 </script>
  
 <style scoped>

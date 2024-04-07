@@ -8,7 +8,9 @@ import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 
 import { createApp } from 'vue';
-
+import { createPinia } from 'pinia'
 const app = createApp(mainPage)
+const pinia = createPinia()
 app.use(ElementPlus)
+app.use(pinia)
 app.use(router).mount('#app')

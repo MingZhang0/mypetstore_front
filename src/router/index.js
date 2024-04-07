@@ -10,7 +10,7 @@ import GoodsManage from "../components/GoodsManage.vue"
 import OrderManage from "../components/OrderManage.vue"
 import UserManage from "../components/UserManage.vue"
 import MainPage from "../components/MainPage.vue"
-import ModifyUser from "../components/ModifyUser.vue"
+import ModifyUser from "../components/UserList.vue"
 import AddGood from "../components/AddGood.vue"
 import AddOrder from "../components/AddOrder.vue"
 const routes = [

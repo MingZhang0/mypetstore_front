@@ -67,11 +67,15 @@
     </el-form-item>
 
     <el-form-item label="送达地址邮编" prop="shiptozip">
-      <el-input v-model="ruleForm.shiptoadd" />
+      <el-input v-model="ruleForm.shiptozip" />
     </el-form-item>
 
-    <el-form-item label="买家姓名" prop="real_name">
-      <el-input v-model="ruleForm.real_name" />
+    <el-form-item label="买家姓" prop="reallastname">
+      <el-input v-model="ruleForm.reallastname" />
+    </el-form-item>
+
+    <el-form-item label="买家名" prop="realfirstname">
+      <el-input v-model="ruleForm.realfirstname" />
     </el-form-item>
 
     <el-form-item label="买家银行卡号" prop="creditcard">
@@ -93,6 +97,8 @@
 
 <script setup>
 import { reactive, ref } from "vue"
+import axios from 'axios'
+import { ElMessageBox, ElMessage } from 'element-plus'
 const orderFormData = ref(null)
 const ruleForm = reactive(
   {
@@ -105,7 +111,8 @@ const ruleForm = reactive(
   courier:'',
   shiptoadd:'',
   shiptozip:'',
-  real_name:'',
+  realfirstname:'',
+  reallastname:'',
   creditcard:'',
   totalprice:'',
 }
@@ -182,7 +189,7 @@ const rules = reactive({
   ],
 })
 
-const serverURL = 'http://localhost:8099/neworder'
+const serverURL = 'http://192.168.79.82:8080/neworder'
 const token = localStorage.getItem("token")
 // 发送表单数据
 const submitForm = async function(){
@@ -190,7 +197,7 @@ const submitForm = async function(){
    method:'post',
    url: serverURL,
    headers:{
-    'Authorization': `Bearer ${token}`, // 使用Bearer token的方式
+    'Authorization': `${localStorage.getItem("token")}`, // 使用Bearer token的方式
     'Content-Type': 'application/json'  
    },
    data:JSON.stringify(this.ruleForm)
@@ -199,13 +206,13 @@ const submitForm = async function(){
     //新增订单成功
     if(result.data.status === 0){
       //利用ElementUI信息提示组件返回登录信息
-      this.$message({
+      ElMessage({
                 message: result.data.message,
                 type: "success",
               });
     }else{
       //新增订单失败
-      this.$message.error(result.data.message);
+      ElMessage.error(result.data.message);
     }
   }).catch(function(error){
     console.log(error);

@@ -1,7 +1,7 @@
 <template>
   <div class="col-xs-offset-2 col-xs-8">
     <div class="page-header" style="text-align: center;">
-      <h2>{{ hourMsg }},尊敬的xxxx</h2>
+      <h2>{{ hourMsg }},尊敬的{{ username }}</h2>
     </div>
   </div>
 </template>
@@ -22,6 +22,11 @@ const setHourMsg = function() {
 }
 onBeforeMount(() => {
   setHourMsg()
+})
+
+//接收父组件的数据
+const props = defineProps({
+  username:String,
 })
 </script>
 
