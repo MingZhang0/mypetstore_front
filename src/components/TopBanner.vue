@@ -3,6 +3,7 @@
     <div class="page-header" style="text-align: center;">
       <h2>{{ hourMsg }},尊敬的{{ username }}</h2>
     </div>
+    
   </div>
 </template>
 
@@ -20,14 +21,17 @@ const setHourMsg = function() {
     hourMsg.value = '晚上好'
   }
 }
-onBeforeMount(() => {
-  setHourMsg()
-})
 
 //接收父组件的数据
 const props = defineProps({
   username:String,
 })
+const username = localStorage.getItem("username")
+onBeforeMount(() => {
+  setHourMsg()
+})
+
+
 </script>
 
 <style>

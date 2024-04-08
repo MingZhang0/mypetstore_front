@@ -7,6 +7,7 @@
     border
   >
     <template #extra>
+      <el-button type="danger" @click="exitUser()">退出登录</el-button>
       <el-button type="primary" @click="editUserInfo()">修改个人信息</el-button>
     </template>
     <el-descriptions-item>
@@ -73,7 +74,7 @@
           真实姓名
         </div>
       </template>
-     {{ userInfo.real_name }}
+     {{ userInfo.realName }}
     </el-descriptions-item>
     <el-descriptions-item>
       <template #label>
@@ -113,8 +114,8 @@
     <el-form-item label="邮箱" prop="email">
       <el-input v-model="userInfo.email" />
     </el-form-item>
-    <el-form-item label="真实姓名" prop="real_name">
-      <el-input v-model="userInfo.real_name" />
+    <el-form-item label="真实姓名" prop="realName">
+      <el-input v-model="userInfo.realName" />
     </el-form-item>
     <el-form-item label="电话" prop="phone">
       <el-input v-model="userInfo.phone" />
@@ -135,7 +136,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onBeforeMount } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import axios from 'axios'
 import {
@@ -149,34 +150,24 @@ import {
 } from '@element-plus/icons-vue'
 import { useUserStore } from '../store/userstore';
 import { storeToRefs } from 'pinia';
+import { useRouter } from 'vue-router';
+const router = useRouter();
 const useUser = useUserStore()
 const { currentUserInfo } = storeToRefs(useUser)
 
-
 const userInfo = computed(()=> useUser.currentUserInfo)
-// const userInfo = {
-//   username:'xx',
-//   password:'xx',
-//   email:'xx',
-//   real_name:'xx',
-//   phone:'xx',
-//   address:'xx',
-//   status:'xx'
-// }
 
 const dialogVisible = ref(false)
 
  //定义发送请求的路径
-const serverURLUpdate = 'http://192.168.79.82:8080/userinfo'
+const serverURLUpdate = 'http://localhost:8080/userinfo'
 
 const editUserInfo = function () {
+    console.log("用户信息:"+userInfo)
     dialogVisible.value = true
 }
 
 function resetForm() {
-  if (userInfo.value) {  
-    userInfo.value.resetFields(); // 使用表单的 resetFields 方法清空表单  
-  } 
   dialogVisible.value = false
 }
 
@@ -184,12 +175,12 @@ function resetForm() {
   const submitModifyForm = async function (){
       axios({
         method:'post',
-        url:serverURLUpdate,
+        url:'http://localhost:8080/newuserinfo',
         headers:{
           'Authorization': `${localStorage.getItem("token")}`, // 使用Bearer token的方式
           'Content-Type': 'application/json'
         },
-        data:JSON.stringify(userInfo)
+        data:JSON.stringify(userInfo.value)
       }).then((result) => {
         console.log(result);
         //修改商品信息成功
@@ -207,6 +198,7 @@ function resetForm() {
     console.log(error);
     })
     dialogVisible.value = false
+    location.reload()
   }
  //处理关闭对话框
  function handleClose(done) {  
@@ -229,6 +221,26 @@ function resetForm() {
   return {
     marginRight: marginMap[size.value] || marginMap.default,
   }
+
+})
+
+function exitUser(){
+  router.push('/userlogin')
+  localStorage.clear()
+}
+
+router.beforeEach((to, from, next) => {  
+  const isAuthenticated = localStorage.getItem("token")  
+  if (to.path !== '/userlogin' && isAuthenticated == null) {  
+    next('/userlogin'); // 如果用户未认证且不是登录页面，则重定向到登录页面  
+    return false
+  } else {  
+    next(); // 否则继续导航  
+  }  
+});
+onMounted(()=>{
+  console.log(userInfo.value);
+  useUser.getUserInfo()
 })
 </script>
 

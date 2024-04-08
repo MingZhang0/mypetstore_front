@@ -2,7 +2,7 @@
   <div class="common-layout">
     <el-container>
       <el-header>
-        <TopBanner userinfo="currentUserInfo.username"/>
+        <TopBanner :username=currentUserInfo.username />
       </el-header>
 
       <el-container>
@@ -34,7 +34,7 @@
                     </el-menu-item>
                   </el-menu-item-group>
                   <el-menu-item-group title="Group Two">
-                    <el-menu-item index="addUser" disabled="currentUserInfo.admin">
+                    <el-menu-item index="addUser" :disabled="currentUserInfo.admin==true">
                       <router-link to="/mainPage/userList">
                         用户列表
                       </router-link>
@@ -132,7 +132,18 @@ a {
   text-decoration: none;
   color: black;
 }
-el-container {
-  height:auto
+.el-aside {  
+  height: 100vh; /* 设置高度为视口高度 */  
+  overflow-y: auto; /* 允许垂直滚动 */  
+  /* 其他样式 */  
+}
+
+.tac {
+  height: 100vh; /* 设置行的高度为视口高度 */  
+}
+
+.el-menu-vertical-demo {
+  height: 90vh; /* 设置行的高度为视口高度 */  
+  width: 200px;
 }
 </style>

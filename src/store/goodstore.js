@@ -1,12 +1,12 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { ref, reactive } from "vue";
 import axios from 'axios'
 export const useGoodStore = defineStore('currentGoodsList', () => {
   //声明数据
   const currentGoodsList = ref([])
   //声明操作数据的方法
   //异步方法
-  const serverURLUpdate = 'http://192.168.79.82:8080/itemlist'
+  const serverURLUpdate = 'http://localhost:8080/itemlist'
   const getGoodsList = async () => {
     console.log("发送商品请求");
      await axios({
@@ -21,6 +21,9 @@ export const useGoodStore = defineStore('currentGoodsList', () => {
       //请求商品列表成功
       if(result.data.status === 0){
         console.log("请求成功");
+        for(let receiveData of result.data.data){
+          receiveData.img = `https://mypetstore-csu22.oss-cn-wuhan-lr.aliyuncs.com/product/${receiveData.productid}.gif`
+        }
         currentGoodsList.value = result.data.data
       }else{
         //请求商品列表失败

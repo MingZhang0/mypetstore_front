@@ -161,7 +161,7 @@ const options = Array.from({ length: 100 }).map((_, idx) => ({
   label: `${idx + 1}`,
 }))
 
-const serverURL = 'http://192.168.79.82:8080/newitem'
+const serverURL = 'http://localhost:8080/newitem'
 const token = localStorage.getItem("token")
 // 发送表单数据
 const submitForm = async function(){
@@ -182,6 +182,7 @@ const submitForm = async function(){
                 message: result.data.message,
                 type: "success",
               });
+      resetForm()
     }else{
       //新增商品失败
       ElMessage.error(result.data.message);

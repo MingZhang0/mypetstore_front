@@ -47,7 +47,7 @@ const newUser = reactive({
 })
 
 
-const serverURL = 'http://192.168.79.82:8080/newuser'
+const serverURL = 'http://localhost:8080/newuser'
 function doSubmit() {
 	axios({
         method:'post',

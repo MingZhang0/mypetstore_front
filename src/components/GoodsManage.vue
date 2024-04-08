@@ -3,7 +3,8 @@
     <el-table
     :data="tableData"
     style="width: 100%"
-    height="auto"
+    max-height="90vh"
+    :stripe="true"
     row-key="itemid">
     <el-table-column
       fixed
@@ -25,19 +26,17 @@
       prop="img"
       label="商品图片"
       width="120">
-      <el-image
+      <!-- <el-image
       style="width: 100px; height: 100px"
-      :zoom-rate="1.2"
-      :max-scale="7"
-      :min-scale="0.2"
-      :initial-index="1"
-      :preview-teleported="true"
-      fit="cover"
+      fit="fill"
       :src="tableData.img"
-      :preview-src-list="tableData.previewImgList"
       @load="show()"
       @error="error()"    
-    />
+    /> -->
+    <template #default="scope">
+                    <el-image style="width: 100px; height: 100px" :src="scope.row.img" />
+                    <!-- 显示图片 -->
+                </template>
     </el-table-column>
     <el-table-column
       prop="listprice"
@@ -118,7 +117,16 @@
       <el-input v-model="selectData.productid" />
     </el-form-item>
     <el-form-item label="商品图片" prop="img">
-      <el-input v-model="selectData.img" />
+      <el-upload
+      class="avatar-uploader"
+      action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+      :show-file-list="false"
+      :on-success="handleAvatarSuccess"
+      >
+      <img v-if="selectData.img" :src="selectData.img" class="avatar" />
+      <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+      </el-upload>
+      <!-- <el-input v-model="selectData.img" /> -->
     </el-form-item>
     <el-form-item label="商品售价" prop="listprice">
       <el-input v-model="selectData.listprice" />
@@ -170,10 +178,10 @@ import { storeToRefs } from 'pinia'
 import {
   Delete,
   Edit,
+  Plus
 } from '@element-plus/icons-vue'
 const useGoodsList = useGoodStore()
 const { currentGoodsList } = storeToRefs(useGoodsList)
-
   const tableData = computed(()=> useGoodsList.currentGoodsList)
   //弹出修改信息框中的数据
   let selectData = reactive({
@@ -181,7 +189,6 @@ const { currentGoodsList } = storeToRefs(useGoodsList)
         productid:'',
         categoryid:'',
         img:'',
-        previewImgList:[''],
         listprice:'',
         unitcost:'',
         supplier:'',
@@ -191,22 +198,28 @@ const { currentGoodsList } = storeToRefs(useGoodsList)
         descn:''
   })
   //定义发送请求的路径
-  const serverURLUpdate = 'http://192.168.79.82:8080/updateitem'
-  const serverURLDelete = 'http://192.168.79.82:8080/removeitem'
+  const serverURLUpdate = 'http://localhost:8080/updateitem'
+  const serverURLDelete = 'http://localhost:8080/removeitem'
 
   const show = function(){
     console.log("图片加载成功");
   }
   const error = function(){
-    tableData.img = 'https://fuss10.elemecdn.com/a/3f/3302e58f9a181d2509f3dc0fa68b0jpeg.jpeg'
-    tableData.previewImgList = ['https://fuss10.elemecdn.com/a/3f/3302e58f9a181d2509f3dc0fa68b0jpeg.jpeg']
+    console.log(tableData.value);
+    console.log("图片加载失败");
   }
 
   const dialogVisible = ref(false)
   //点击修改按钮后获取当前行的数据并弹出对话框
   const editRow = (row) =>{
+    console.log(selectData);
     //不要直接赋值避免丢失响应式
-    selectData.value = {...row}
+      // 逐个复制属性以保持响应性  
+  for (const key in row) {  
+    if (row.hasOwnProperty(key) && selectData.hasOwnProperty(key)) {  
+      selectData[key] = row[key];  
+    }  
+  }
     dialogVisible.value = true
   }
   //设置下拉框中数据范围
@@ -243,6 +256,7 @@ const { currentGoodsList } = storeToRefs(useGoodsList)
                 message: result.data.message,
                 type: "success",
               });
+              location.reload()
         }else{
           //修改商品信息失败
           ElMessage.error(result.data.message);
@@ -251,6 +265,7 @@ const { currentGoodsList } = storeToRefs(useGoodsList)
     console.log(error);
     })
     dialogVisible.value = false
+    location.reload()
   }
 //在对话框中点击取消后处理表单
 function resetForm(){
@@ -262,6 +277,7 @@ function resetForm(){
 //删除指定行
 async function deleteRow(row) {
   selectData.value = {...row}
+  console.log(selectData.value)
   ElMessageBox.confirm(
     '即将删除指定数据,是否确认删除?',
     'Warning',
@@ -279,7 +295,7 @@ async function deleteRow(row) {
           'Authorization': `${localStorage.getItem("token")}`, // 使用Bearer token的方式
           'Content-Type': 'application/json'
         },
-        data:JSON.stringify(selectData.itemid)
+        data:JSON.stringify({itemid:selectData.value.itemid})
       }).then((result) => {
         console.log(result);
         //删除商品信息成功
@@ -289,6 +305,7 @@ async function deleteRow(row) {
                 message: result.data.message,
                 type: "success",
               });
+          location.reload()
         }else{
           //删除商品信息失败
           ElMessage.error(result.data.message);
@@ -309,25 +326,51 @@ async function deleteRow(row) {
 onMounted(()=>{
   console.log("onMounted");
   useGoodsList.getGoodsList()
-  tableData.value = currentGoodsList.value
+  // tableData.value = currentGoodsList.value
 })
 
 onBeforeMount(()=>{
   useGoodsList.getGoodsList()
-  tableData.value = currentGoodsList.value
+  // tableData.value = currentGoodsList.value
 })
 </script>
 
 <style>
-.demo-image__error .image-slot {
-  font-size: 30px;
+.demo-image .block {
+  padding: 30px 0;
+  text-align: center;
+  border-right: solid 1px var(--el-border-color);
+  display: inline-block;
+  width: 20%;
+  box-sizing: border-box;
+  vertical-align: top;
 }
-.demo-image__error .image-slot .el-icon {
-  font-size: 30px;
+.demo-image .block:last-child {
+  border-right: none;
 }
-.demo-image__error .el-image {
-  width: 100%;
-  height: 200px;
+.avatar-uploader .avatar {
+  width: 178px;
+  height: 178px;
+  display: block;
+}
+.avatar-uploader .el-upload {
+  border: 1px dashed var(--el-border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: var(--el-transition-duration-fast);
 }
 
+.avatar-uploader .el-upload:hover {
+  border-color: var(--el-color-primary);
+}
+
+.el-icon.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  text-align: center;
+}
 </style>

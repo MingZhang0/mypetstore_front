@@ -1,7 +1,7 @@
 <template>
   <h3>用户管理</h3>
   <el-table
-  :data="tableData"
+  :data="userList.value"
   style="width: 100%"
   height="auto"
   row-key="username">
@@ -22,7 +22,7 @@
     width="120">
   </el-table-column>
   <el-table-column
-    prop="real_name"
+    prop="realName"
     label="用户真实姓名"
     width="120">
   </el-table-column>
@@ -62,7 +62,6 @@
 >
 <el-form
   style="max-width: 600px"
-  ref="formData"
   :model="selectData"
   label-width="auto"
   class="demo-ruleForm"
@@ -78,8 +77,8 @@
   <el-form-item label="用户邮箱" prop="email">
     <el-input v-model="selectData.email" />
   </el-form-item>
-  <el-form-item label="用户姓名" prop="real_name">
-    <el-input v-model="selectData.real_name" />
+  <el-form-item label="用户姓名" prop="realName">
+    <el-input v-model="selectData.realName" />
   </el-form-item>
   <el-form-item label="用户电话" prop="phone">
     <el-input v-model="selectData.phone" />
@@ -120,15 +119,15 @@ let selectData = reactive({
       username:'',
       password:'',
       email:'',
-      real_name:'',
+      realName:'',
       phone:'',
       address:'',
       status:'',
 })
 //定义发送请求的路径
-const serverURLGet = 'http://192.168.79.82:8080/sellers'
-const serverURLUpdate = 'http://192.168.79.82:8080/updateseller'
-const serverURLDelete = 'http://192.168.79.82:8080/deleteseller'
+const serverURLGet = 'http://localhost:8080/sellers'
+const serverURLUpdate = 'http://localhost:8080/updateseller'
+const serverURLDelete = 'http://localhost:8080/deleteseller'
 
 const show = function(){
   console.log("图片加载成功");
@@ -142,7 +141,12 @@ const dialogVisible = ref(false)
 //点击修改按钮后获取当前行的数据并弹出对话框
 const editRow = (row) =>{
   //不要直接赋值避免丢失响应式
-  selectData.value = {...row}
+    // 逐个复制属性以保持响应性  
+    for (const key in row) {  
+    if (row.hasOwnProperty(key) && selectData.hasOwnProperty(key)) {  
+      selectData[key] = row[key];  
+    }  
+  }
   dialogVisible.value = true
 }
 //设置下拉框中数据范围
@@ -181,12 +185,16 @@ const submitModifyForm = async function (){
             });
       }else{
         //修改商品信息失败
-        ElMessage.error(result.data.message);
+        ElMessage({
+          message: result.data.message,
+          type: 'warning'
+        });
     }
   }).catch(function(error){
   console.log(error);
   })
   dialogVisible.value = false
+  location.reload()
 }
 //在对话框中点击取消后处理表单
 function resetForm(){
@@ -253,6 +261,7 @@ onMounted(()=>{
   }).then((result)=>{
     console.log(result);
     userList.value = result.data.data
+    console.log(userList);
   }).catch(()=>{
     ElMessage({
       type:'error',

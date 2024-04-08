@@ -10,9 +10,10 @@ import GoodsManage from "../components/GoodsManage.vue"
 import OrderManage from "../components/OrderManage.vue"
 import UserManage from "../components/UserManage.vue"
 import MainPage from "../components/MainPage.vue"
-import ModifyUser from "../components/UserList.vue"
 import AddGood from "../components/AddGood.vue"
 import AddOrder from "../components/AddOrder.vue"
+import UserList from "../components/UserList.vue"
+import { compareTime } from 'element-plus/es/components/time-select/src/utils.mjs'
 const routes = [
   {
     path:'/',
@@ -39,11 +40,6 @@ const routes = [
         component: UserManage
       },
       {
-        path: 'modifyUser',
-        name: 'modifyUser',
-        component: ModifyUser
-      },
-      {
         path: 'addOrder',
         name: 'addOrder',
         component: AddOrder
@@ -53,6 +49,11 @@ const routes = [
         name: 'addGood',
         component: AddGood
       },
+      {
+        path:'userList',
+        name:'userList',
+        component: UserList
+      }
     ]
   },
   {

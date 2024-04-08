@@ -53,7 +53,7 @@ import { ElMessage } from 'element-plus';
 
   function  doSubmit() {
       //服务器对应地址
-      var serverURL = "http://192.168.79.82:8080/user";
+      var serverURL = "http://localhost:8080/user";
       //要携带的数据
       var params = {
         username : user.username,
@@ -78,11 +78,14 @@ import { ElMessage } from 'element-plus';
               });
               //返回成功请求后设置用户数据
               useUser.setUserInfo(r.data.data)
+              useUser.username = r.data.data.username
+              useUser.password = r.data.data.password
               //登陆成功，返回指定界面
               router.push("/mainPage");
             
               //将token存储到本地
               localStorage.setItem("token",r.data.token)
+              localStorage.setItem("username",r.data.data.username)
             }else {
               //弹出登录失败信息
               ElMessage.error(r.data.message);

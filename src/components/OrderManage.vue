@@ -3,6 +3,7 @@
     <el-table
     :data="orderList"
     style="width: 100%"
+    max-height="90vh"
     height="auto">
     <el-table-column
       fixed
@@ -21,13 +22,28 @@
       width="120">
     </el-table-column>
     <el-table-column
-      prop="ordertime"
-      label="下单时间"
+      prop="shipcountry"
+      label="发货国家"
       width="120">
     </el-table-column>
     <el-table-column
-      prop="shipfromadd"
-      label="发货地址"
+      prop="shipfromstate"
+      label="发货省份"
+      width="120">
+    </el-table-column>
+    <el-table-column
+      prop="shipfromcity"
+      label="发货城市"
+      width="120">
+    </el-table-column>
+    <el-table-column
+      prop="shipfromadd1"
+      label="发货详细地址"
+      width="120">
+    </el-table-column>
+    <el-table-column
+      prop="shipfromadd2"
+      label="发货备用地址"
       width="120">
     </el-table-column>
     <el-table-column
@@ -41,19 +57,54 @@
       width="120">
     </el-table-column>
     <el-table-column
-      prop="shiptoadd"
-      label="送达地址"
+      prop="billcountry"
+      label="送达国家"
       width="120">
     </el-table-column>
     <el-table-column
-      prop="realfirstname"
+      prop="billstate"
+      label="送达省份"
+      width="120">
+    </el-table-column>
+    <el-table-column
+      prop="billcity"
+      label="送达城市"
+      width="120">
+    </el-table-column>
+    <el-table-column
+      prop="billaddr1"
+      label="送达详细地址"
+      width="120">
+    </el-table-column>
+    <el-table-column
+      prop="billaddr2"
+      label="送达备用地址"
+      width="120">
+    </el-table-column>
+    <el-table-column
+      prop="billzip"
+      label="送达地址邮编"
+      width="120">
+    </el-table-column>
+    <el-table-column
+      prop="exprdate"
+      label="送达时间"
+      width="120">
+    </el-table-column>
+    <el-table-column
+      prop="billtofirstname"
       label="买家名"
       width="120">
     </el-table-column>
     <el-table-column
-      prop="reallastname"
+      prop="billtolastname"
       label="买家姓"
       width="120">
+    </el-table-column>
+    <el-table-column
+      prop="cardtype"
+      label="买家银行卡类型"
+      width="130">
     </el-table-column>
     <el-table-column
       prop="creditcard"
@@ -112,23 +163,26 @@
           />
         </el-form-item>
       </el-col>
-      <el-col class="text-center" :span="2">
-        <span class="text-gray-500">-</span>
-      </el-col>
-      <el-col :span="11">
-        <el-form-item prop="ordertime">
-          <el-time-picker
-            v-model="selectData.ordertime"
-            label="选择下单时间"
-            placeholder="选择下单时间"
-            style="width: 100%"
-          />
-        </el-form-item>
-      </el-col>
     </el-form-item>
 
-    <el-form-item label="发货地址" prop="shipfromadd">
-      <el-input v-model="selectData.shipfromadd" />
+    <el-form-item label="发货国家" prop="shipcountry">
+      <el-input v-model="selectData.shipcountry" />
+    </el-form-item>
+
+    <el-form-item label="发货省份" prop="shipfromstate">
+      <el-input v-model="selectData.shipfromstate" />
+    </el-form-item>
+
+    <el-form-item label="发货城市" prop="shipfromcity">
+      <el-input v-model="selectData.shipfromcity" />
+    </el-form-item>
+
+    <el-form-item label="发货详细地址" prop="shipfromadd1">
+      <el-input v-model="selectData.shipfromadd1" />
+    </el-form-item>
+
+    <el-form-item label="发货备用地址" prop="shipfromadd2">
+      <el-input v-model="selectData.shipfromadd2" />
     </el-form-item>
 
     <el-form-item label="发货地址邮编" prop="shipfromzip">
@@ -146,24 +200,58 @@
       </el-select>
     </el-form-item>
 
-    <el-form-item label="送达地址" prop="shiptoadd">
-      <el-input v-model="selectData.shiptoadd" />
+    <el-form-item label="送达国家" prop="billcountry">
+      <el-input v-model="selectData.billcountry" />
     </el-form-item>
 
-    <el-form-item label="送达地址邮编" prop="shiptozip">
-      <el-input v-model="selectData.shiptoadd" />
+    <el-form-item label="送达省份" prop="billstate">
+      <el-input v-model="selectData.billstate" />
     </el-form-item>
 
-    <el-form-item label="买家名" prop="realfirstname">
-      <el-input v-model="selectData.realfirstname" />
+    <el-form-item label="送达城市" prop="billcity">
+      <el-input v-model="selectData.billcity" />
     </el-form-item>
 
-    <el-form-item label="买家姓" prop="reallastname">
-      <el-input v-model="selectData.reallastname" />
+    <el-form-item label="送达详细地址" prop="billaddr1">
+      <el-input v-model="selectData.billaddr1" />
+    </el-form-item>
+
+    <el-form-item label="送达备用地址" prop="billaddr2">
+      <el-input v-model="selectData.billaddr2" />
+    </el-form-item>
+
+    <el-form-item label="送达地址邮编" prop="billzip">
+      <el-input v-model="selectData.billzip" />
+    </el-form-item>
+
+    <el-form-item label="送达日期" required>
+      <el-col :span="11">
+        <el-form-item prop="exprdate">
+          <el-date-picker
+            v-model="selectData.exprdate"
+            type="date"
+            label="选择下单日期"
+            placeholder="选择下单日期"
+            style="width: 100%"
+          />
+        </el-form-item>
+      </el-col>
+    </el-form-item>
+
+    <el-form-item label="买家名" prop="billtofirstname">
+      <el-input v-model="selectData.billtofirstname" />
+    </el-form-item>
+
+    <el-form-item label="买家姓" prop="billtolastname">
+      <el-input v-model="selectData.billtolastname" />
     </el-form-item>
 
     <el-form-item label="买家银行卡号" prop="creditcard">
       <el-input v-model="selectData.creditcard" />
+    </el-form-item>
+
+    <el-form-item label="买家银行卡类型" prop="cardtype">
+      <el-input v-model="selectData.cardtype" />
     </el-form-item>
 
     <el-form-item label="总价" prop="totalprice">
@@ -186,7 +274,7 @@
   Delete,
   Edit,
 } from '@element-plus/icons-vue'
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
 import axios from 'axios'
 import { useOrderStore } from '../store/orderstore'
 import { storeToRefs } from 'pinia'
@@ -197,29 +285,44 @@ const { currentOrderList } = storeToRefs(useOderList)
 const orderList = computed(()=> useOderList.currentOrderList)
 
 //选中某行的订单信息
-let selectData = {
+let selectData = reactive({
     orderid:'',
     userid:'',
     orderdate:'',
-    ordertime:'',
-    shipfromadd:'',
+    shipcountry:'',
+    shipfromstate:'',
+    shipfromcity:'',
+    shipfromadd1:'',
+    shipfromadd2:'',
     shipfromzip:'',
     courier:'',
-    shiptoadd:'',
-    realfirstname:'',
-    reallastname:'',
+    billcountry:'',
+    billstate:'',
+    billcity:'',
+    billaddr1:'',
+    billaddr2:'',
+    billzip:'',
+    exprdate:'',
+    billtofirstname:'',
+    billtolastname:'',
     creditcard:'',
+    cardtype:'',
     totalprice:''
-}
+})
 //定义请求路径
-const serverURLUpdate = 'http://192.168.79.82:8080/updateorder'
-const serverURLDelete = 'http://192.168.79.82:8080/removeorder'
+const serverURLUpdate = 'http://localhost:8080/updateorder'
+const serverURLDelete = 'http://localhost:8080/removeorder'
 //对话框是否tanchu
 const dialogVisible = ref(false)
 
 //点击修改按钮后获取当前行的数据并弹出对话框
 const editOrderRow = (row) =>{
-    selectData = {...row}
+      // 逐个复制属性以保持响应性  
+  for (const key in row) {  
+    if (row.hasOwnProperty(key) && selectData.hasOwnProperty(key)) {  
+      selectData[key] = row[key];  
+    }  
+  }
     dialogVisible.value = true
 }
 
@@ -253,6 +356,7 @@ const submitModifyForm = async function (){
                 message: result.data.message,
                 type: "success",
               });
+              location.reload()
         }else{
           //修改商品信息失败
           ElMessage.error(result.data.message);
@@ -282,9 +386,8 @@ function deleteOrderRow(row){
       cancelButtonText: '取消',
       type: 'warning',
     }
-  )
-    .then(() => {
-      const params = JSON.stringify({orderid:selectData.orderid})
+  ).then(() => {
+  const params = JSON.stringify({orderid:selectData.orderid})
   console.log(params)
   axios({
         method:'post',
@@ -303,6 +406,8 @@ function deleteOrderRow(row){
                 message: result.data.message,
                 type: "success",
               });
+              useOderList.getOrderList()
+              location.reload()
         }else{
           //修改商品信息失败
           ElMessage.error(result.data.message);
@@ -322,13 +427,11 @@ function deleteOrderRow(row){
 onMounted(()=>{
   console.log("111111");
   useOderList.getOrderList()
-  orderList.value = currentOrderList.value
 })
 
 onBeforeMount(()=>{
   console.log("222222222222");
   useOderList.getOrderList()
-  orderList.value = currentOrderList.value
 })
 </script>
 
