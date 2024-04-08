@@ -12,7 +12,7 @@
             <el-col :span="20">
               <h1 class="mb-2">宠物商店</h1>
               <el-menu
-                default-active="2-goodsManage"
+                default-active="1-userManage"
                 class="el-menu-vertical-demo"
                 active-text-color="#ffd04b"
                 background-color="#545c64"
@@ -34,7 +34,7 @@
                     </el-menu-item>
                   </el-menu-item-group>
                   <el-menu-item-group title="Group Two">
-                    <el-menu-item index="addUser" :disabled="currentUserInfo.admin==true">
+                    <el-menu-item index="1-addUser" :disabled="currentUserInfo.admin==true">
                       <router-link to="/mainPage/userList">
                         用户列表
                       </router-link>
@@ -55,7 +55,7 @@
                     </el-menu-item>
                   </el-menu-item-group>
                   <el-menu-item-group title="Group Two">
-                    <el-menu-item index="addGood">
+                    <el-menu-item index="2-addGood">
                       <router-link to="/mainPage/addGood">
                         新增商品
                       </router-link>
@@ -69,14 +69,14 @@
                     <span>订单管理</span>
                   </template>
                   <el-menu-item-group title="Group One">
-                    <el-menu-item index="orderManage">
+                    <el-menu-item index="3-orderManage">
                       <router-link to="/mainPage/orderManage">
                         订单列表
                       </router-link>
                     </el-menu-item>
                   </el-menu-item-group>
                   <el-menu-item-group title="Group Two">
-                    <el-menu-item index="addOrder">
+                    <el-menu-item index="3-addOrder">
                       <router-link to="/mainPage/addOrder">
                         新增订单
                       </router-link>

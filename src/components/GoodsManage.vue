@@ -33,10 +33,10 @@
       @load="show()"
       @error="error()"    
     /> -->
-    <template #default="scope">
-                    <el-image style="width: 100px; height: 100px" :src="scope.row.img" />
-                    <!-- 显示图片 -->
-                </template>
+      <template #default="scope">
+        <el-image style="width: 100px; height: 100px" :src="scope.row.img" />
+        <!-- 显示图片 -->
+      </template>
     </el-table-column>
     <el-table-column
       prop="listprice"
@@ -117,16 +117,15 @@
       <el-input v-model="selectData.productid" />
     </el-form-item>
     <el-form-item label="商品图片" prop="img">
-      <el-upload
-      class="avatar-uploader"
-      action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
-      :show-file-list="false"
-      :on-success="handleAvatarSuccess"
-      >
-      <img v-if="selectData.img" :src="selectData.img" class="avatar" />
-      <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
-      </el-upload>
-      <!-- <el-input v-model="selectData.img" /> -->
+      <!-- <div>
+        <input type="file" @click="changeImg()">
+        <img v-if="selectData.img" :src="selectData.img" class="avatar" />
+        <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+      </div> -->
+      <div>
+        <input type="file" id="open" @change="handleFileUpload" accept="image/*">
+        <img v-if="selectData.img" :src="selectData.img">
+      </div>
     </el-form-item>
     <el-form-item label="商品售价" prop="listprice">
       <el-input v-model="selectData.listprice" />
@@ -270,7 +269,7 @@ const { currentGoodsList } = storeToRefs(useGoodsList)
 //在对话框中点击取消后处理表单
 function resetForm(){
   if (selectData.value) {  
-    formData.value.resetFields(); // 使用表单的 resetFields 方法清空表单  
+    selectData.value.resetFields(); // 使用表单的 resetFields 方法清空表单  
   } 
   dialogVisible.value = false
 }
@@ -333,6 +332,21 @@ onBeforeMount(()=>{
   useGoodsList.getGoodsList()
   // tableData.value = currentGoodsList.value
 })
+
+function handleFileUpload(event){
+  const file = event.target.files[0]
+  if(file){
+    const reader = new FileReader();
+    reader.onload = () => {
+      // selectData.img = reader.result
+      // console.log(reader.result)
+      selectData.img = document.getElementById("open").value
+      console.log(document.getElementById("open").value);
+    }
+    reader.readAsDataURL(file)
+  }
+  
+}
 </script>
 
 <style>
